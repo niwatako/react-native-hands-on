@@ -24,10 +24,31 @@ class SearchResultsView extends Component {
     this.state = { search_words: props.search_words };
   }
 
+  componentWillMount() {
+    this.fetchApiAsync()
+  }
+
   render () {
     return (
       <Text style={{marginTop: 180}}>{this.state.search_words}</Text>
     );
+  }
+
+  fetchApiAsync() {
+    const url = "https://api.github.com/search/repositories?q=" + encodeURIComponent(this.state.search_words);
+    return fetch(url)
+    .then((response) => response.json())
+    .then((responseJson) => {
+      const repositories = responseJson.items
+      if (repositories) {
+        for (var i = 0; i < repositories.length; i ++) {
+          console.log(repositories[i].full_name);
+        }
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 }
 
