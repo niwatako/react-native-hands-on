@@ -5,7 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import { AppRegistry, NavigatorIOS, View, TextInput, Button, Text } from 'react-native';
+import { AppRegistry, NavigatorIOS, View, TextInput, Button, Text, ListView } from 'react-native';
 
 class RootView extends Component {
   render() {
@@ -21,7 +21,11 @@ class RootView extends Component {
 class SearchResultsView extends Component {
   constructor(props) {
     super(props);
-    this.state = { search_words: props.search_words };
+    this.dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    this.state = {
+      repositories: [],
+      search_words: props.search_words
+    };
   }
 
   componentWillMount() {
@@ -30,7 +34,15 @@ class SearchResultsView extends Component {
 
   render () {
     return (
-      <Text style={{marginTop: 180}}>{this.state.search_words}</Text>
+      <View style={{flex: 1, paddingTop: 22}}>
+        <ListView
+          dataSource={this.dataSource.cloneWithRows(this.state.repositories)}
+          renderRow={ (repository) =>
+            <Text>{repository.full_name}</Text>
+          }
+          enableEmptySections
+          />
+      </View>
     );
   }
 
@@ -41,9 +53,7 @@ class SearchResultsView extends Component {
     .then((responseJson) => {
       const repositories = responseJson.items
       if (repositories) {
-        for (var i = 0; i < repositories.length; i ++) {
-          console.log(repositories[i].full_name);
-        }
+        this.setState({ repositories: repositories });
       }
     })
     .catch((error) => {
