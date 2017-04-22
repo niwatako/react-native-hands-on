@@ -5,7 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import { AppRegistry, NavigatorIOS, View, TextInput, Button, Text, ListView } from 'react-native';
+import { AppRegistry, NavigatorIOS, View, TextInput, Button, Text, ListView, Image, TouchableHighlight, WebView } from 'react-native';
 
 class RootView extends Component {
   render() {
@@ -38,12 +38,23 @@ class SearchResultsView extends Component {
         <ListView
           dataSource={this.dataSource.cloneWithRows(this.state.repositories)}
           renderRow={ (repository) =>
-            <Text>{repository.full_name}</Text>
+            <RepositoryCell
+              repository={repository}
+              onPress={() => this.openRepositoryURL(repository)}
+              />
           }
           enableEmptySections
           />
       </View>
     );
+  }
+
+  openRepositoryURL(repository) {
+    this.props.navigator.push({
+      title: repository.full_name,
+      component: WebView,
+      passProps: {source: {url: repository.html_url}}
+    });
   }
 
   fetchApiAsync() {
@@ -59,6 +70,31 @@ class SearchResultsView extends Component {
     .catch((error) => {
       console.error(error);
     });
+  }
+}
+
+class RepositoryCell extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      repository: props.repository,
+      onPress: props.onPress,
+    }
+  }
+  render() {
+    return (
+      <TouchableHighlight onPress={this.state.onPress} underlayColor='#EEE'>
+        <View style={{flexDirection: 'row', paddingTop: 6}}>
+          <View style={{paddingTop: 2, paddingHorizontal: 10, paddingBottom: 20}}>
+            <Image source={{ uri: this.state.repository.owner.avatar_url }} style={{width: 40, height: 40}}/>
+          </View>
+          <View style={{flex: 1}}>
+            <Text style={{fontSize: 14, color: '#333'}}>{this.state.repository.full_name}</Text>
+            <Text style={{fontSize: 12, color: '#666', paddingTop: 3, paddingRight: 6, paddingBottom: 10, paddingLeft: 0}}>{this.state.repository.description}</Text>
+          </View>
+        </View>
+      </TouchableHighlight>
+    )
   }
 }
 
