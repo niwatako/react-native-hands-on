@@ -5,7 +5,31 @@
  */
 
 import React, { Component } from 'react';
-import { AppRegistry, View, TextInput, Button } from 'react-native';
+import { AppRegistry, NavigatorIOS, View, TextInput, Button, Text } from 'react-native';
+
+class RootView extends Component {
+  render() {
+    return (
+      <NavigatorIOS
+        initialRoute={{component: ReactNativeGithubSearch, title: "Github Repository Search"}}
+        style={{flex: 1}}
+        />
+    )
+  }
+}
+
+class SearchResultsView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { search_words: props.search_words };
+  }
+
+  render () {
+    return (
+      <Text style={{marginTop: 180}}>{this.state.search_words}</Text>
+    );
+  }
+}
 
 export default class ReactNativeGithubSearch extends Component {
   constructor(props) {
@@ -31,8 +55,12 @@ export default class ReactNativeGithubSearch extends Component {
   }
 
   onPressSearch(search_words) {
-    console.log(search_words);
+    this.props.navigator.push({
+      title: "検索結果",
+      component: SearchResultsView,
+      passProps: {search_words: search_words}
+    });
   }
 }
 
-AppRegistry.registerComponent('ReactNativeGithubSearch', () => ReactNativeGithubSearch);
+AppRegistry.registerComponent('ReactNativeGithubSearch', () => RootView);
